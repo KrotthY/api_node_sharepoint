@@ -8,7 +8,6 @@ import expressWinston from 'express-winston'
 import DailyRotateFile from "winston-daily-rotate-file";
 
 const app =  express();
-app.set('trust proxy', 1);
 
 app.set('port', config.port)
 //middlewares
@@ -35,22 +34,32 @@ const corsOptions = {
 app.use(helmet());
 app.use(cors(corsOptions));
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({extended:false}))
 
 app.use(expressWinston.logger({
   winstonInstance: logger,
   meta: true,
-  msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms - User: {{req.user?.id || 'unknown'}} - IP: {{req.ip}}",
+  msg: "HTTP {{req.method}} {{req.url}} - Status: {{res.statusCode}} - Duration: {{res.responseTime}}ms - User: {{req.user?.id || 'unknown'}}",
   colorize: true,
   dynamicMeta: (req, res) => {
     return {
-      user_id: req.user?.id,
-      user_name: req.user?.username,
-      query_params: req.query
+      user: {
+        id: req.user?.id,
+        name: req.user?.username
+      },
+      request: {
+        ip: req.ip,
+        query_params: req.query
+      }
     };
-  }
+  },
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json()
+  )
 }));
+
 
 
 app.use('/',sharePointRoutes)

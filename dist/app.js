@@ -14,7 +14,6 @@ var _winston = _interopRequireDefault(require("winston"));
 var _expressWinston = _interopRequireDefault(require("express-winston"));
 var _winstonDailyRotateFile = _interopRequireDefault(require("winston-daily-rotate-file"));
 var app = (0, _express["default"])();
-app.set('trust proxy', 1);
 app.set('port', _config["default"].port);
 //middlewares
 
@@ -39,7 +38,7 @@ var corsOptions = {
 app.use((0, _helmet["default"])());
 app.use((0, _cors["default"])(corsOptions));
 app.use(_express["default"].json({
-  limit: '50mb'
+  limit: '1mb'
 }));
 app.use(_express["default"].urlencoded({
   extended: false
@@ -47,16 +46,22 @@ app.use(_express["default"].urlencoded({
 app.use(_expressWinston["default"].logger({
   winstonInstance: logger,
   meta: true,
-  msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms - User: {{req.user?.id || 'unknown'}} - IP: {{req.ip}}",
+  msg: "HTTP {{req.method}} {{req.url}} - Status: {{res.statusCode}} - Duration: {{res.responseTime}}ms - User: {{req.user?.id || 'unknown'}}",
   colorize: true,
   dynamicMeta: function dynamicMeta(req, res) {
     var _req$user, _req$user2;
     return {
-      user_id: (_req$user = req.user) === null || _req$user === void 0 ? void 0 : _req$user.id,
-      user_name: (_req$user2 = req.user) === null || _req$user2 === void 0 ? void 0 : _req$user2.username,
-      query_params: req.query
+      user: {
+        id: (_req$user = req.user) === null || _req$user === void 0 ? void 0 : _req$user.id,
+        name: (_req$user2 = req.user) === null || _req$user2 === void 0 ? void 0 : _req$user2.username
+      },
+      request: {
+        ip: req.ip,
+        query_params: req.query
+      }
     };
-  }
+  },
+  format: _winston["default"].format.combine(_winston["default"].format.colorize(), _winston["default"].format.json())
 }));
 app.use('/', _sharePointRoutes["default"]);
 app.use(function (req, res, next) {

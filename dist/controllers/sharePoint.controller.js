@@ -16,7 +16,7 @@ var uploadFileSharePoint = /*#__PURE__*/function () {
         case 0:
           _context.prev = 0;
           _req$body = req.body, base64 = _req$body.base64, fileName = _req$body.fileName, folderName = _req$body.folderName, mimeType = _req$body.mimeType;
-          allowedMimeTypes = ['image/jpeg', 'image/png'];
+          allowedMimeTypes = ['image/jpeg', 'image/png', 'video/mp4'];
           if (allowedMimeTypes.includes(mimeType)) {
             _context.next = 5;
             break;

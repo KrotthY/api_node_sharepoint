@@ -1,59 +1,66 @@
-import { getConnection ,queries } from "../database";
-import util from  'util'
-import fs, { readSync } from 'fs';
+import { createServerConnection } from "../database";
+import { getServerConnection, isValidRut } from "../utils/authLocalServers";
+import util from 'util';
+import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
-
-function encrypt(buffer) {
-  const algorithm = 'aes-256-ctr';
-  const password = crypto.randomBytes(32); 
-  const iv = crypto.randomBytes(16); 
-
-  const cipher = crypto.createCipheriv(algorithm, password, iv);
-  const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
-
-  return { encryptedData: encrypted, iv, key: password };
-}
 
 
+const readFileAsync = util.promisify(fs.readFile);
 
 export const getImagesLocal = async (req, res) => {
+  const errors = []
+  const allImages = [];
   try {
-    const { rut } = req.query;
-    const conn = await getConnection();
-    console.log("Conexión establecida");  // Para depuración
+    const { rut , clinicId, fechaToma  } = req.query;
 
-    const queryString = queries.getAllImages;
-    const queryPromise = util.promisify(conn.query).bind(conn);
-    const results = await queryPromise(queryString, [rut]);
+    if (!isValidRut(rut)) {
+      throw new Error("Por favor, ingrese un RUT válido.");
+    }
+    
+    const clinicConfig = getServerConnection.find(config => config.id === parseInt(clinicId))
+    
+    if (!clinicConfig) {
+      throw new Error("No se encontró la configuración de la clínica proporcionada.");
+    }
 
-    const images = results.map(item => {
-      const imagePath = path.join('\\\\192.168.0.6\\cvdata\\DB\\Files\\', item.RutaImg, '\\', item.NombreImagen);
-      console.log(`Intentando leer el archivo desde: ${imagePath}`);  // Para depuración
+    for (const connConfig of clinicConfig.connection) {
+      const conn = await createServerConnection(connConfig.ip, connConfig.serverName, connConfig.user, connConfig.password);
+      const queryString = connConfig.queryUse;
+      const queryPromise = util.promisify(conn.query).bind(conn);
+      const results = await queryPromise(queryString, [rut,fechaToma]);
+      const images = await Promise.all(results.map(async item => {
+        const imagePath = path.join(connConfig.basePath, item.RutaImg,'\\',item.NombreImagen);
+        try {
+          const imageFile = await readFileAsync(imagePath); 
+          const base64Image = Buffer.from(imageFile).toString('base64');
+          return {
+            Servidor: connConfig.serverRx || 'Error Servidor',
+            Clinica: connConfig.clinicName || 'Error Nombre Clinica',
+            RUT: item.RUT || 'Error RUT',
+            NombrePaciente: item.NombrePaciente || 'Error Nombre Paciente',
+            image: base64Image || 'Error Imagen',
+            NombreImagen: item.NombreImagen || 'Error Nombre Imagen',
+            IdImagen: item.ID || 'Error ID Imagen',
+            FechaToma: item.FechaToma || 'Error Fecha Toma',
+          };
 
-      try {
-        const imageFile = fs.readFileSync(imagePath);
-        const encryptedImage = encrypt(imageFile);
-        return {
-          Servidor : item.Servidor,
-          Clinica : item.Clinica,
-          RUT : item.RUT,
-          NombrePaciente : item.NombrePaciente,
-          image : encryptedImage,
-          NombreImagen : item.NombreImagen,
-          IdImagen : item.ID,
-        };
-      } catch (error) {
-        console.log(`Error al leer el archivo: ${error.message}`);  // Para depuración
-        return item;
-      }
-    });
+        } catch (error) {
+          errors.push(`Error al leer o cifrar la imagen ${item.NombreImagen} : ${error.message}`);
+          return null;  
+        }
+      }));
 
-    res.json(images);
+      allImages.push(...images.filter(Boolean));
+    }
+    
+    if (allImages.length === 0) {
+      throw new Error("El paciente no posee imágenes.");
+    }
+    res.json({ success: true, images: allImages, errors });
 
   } catch (error) {
-    console.error(`Error general: ${error.message}`);  // Para depuración
-    res.status(500).send("Ocurrió un error interno");  // Mensaje de error genérico
+    res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
