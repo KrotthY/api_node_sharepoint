@@ -6,7 +6,7 @@ export const uploadFileSharePoint = async (req, res) => {
   try {
       const { base64, fileName,folderName,mimeType } = req.body;
 
-      const allowedMimeTypes = ['image/jpeg', 'image/png'];
+      const allowedMimeTypes = ['image/jpeg', 'image/png','video/mp4'];
 
       if (!allowedMimeTypes.includes(mimeType)) {
         return res.status(400).json({ success: false, error: 'Tipo de archivo no permitido' });

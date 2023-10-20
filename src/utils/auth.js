@@ -156,5 +156,7 @@ export const getFilesPatient = async(accessToken,siteId, folderName) =>{
   } catch (error) {
     
     throw new Error("Error no se pudo consultar: ",  error.response ? error.response.data : error.message)
+  }
 }
-}
+
+
