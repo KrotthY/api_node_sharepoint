@@ -61,4 +61,21 @@ export const queries = {
   AND CAST(CONVERT(VARCHAR, IR.tImgTs, 112) AS DATETIME) BETWEEN ? AND ?
   GROUP BY DATEADD(DAY, DATEDIFF(DAY, 0, IR.tImgTs), 0)
   ORDER BY DATEADD(DAY, DATEDIFF(DAY, 0, IR.tImgTs), 0) desc;`
+  ,
+
+  getSolicitudesRayos: `
+  SELECT idSolicitud
+      ,idSucursal
+      ,rutSolicitante
+      ,nombreSolicitante
+      ,emailSolicitante
+      ,telefonoSolicitante
+      ,fechaSolicitud
+      ,fechaToma
+      ,idTIpoSolicitud
+      ,fechaRespuesta
+      ,estadoRespuesta
+  FROM SOLICITUD `
+  ,
+
 }

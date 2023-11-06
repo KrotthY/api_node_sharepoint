@@ -1,12 +1,17 @@
 import express  from 'express';
-import { uploadFileSharePoint, deleteFileSharePoint, getFilesSharePoint } from '../controllers/sharePoint.controller.js';
-import { getImagesLocal } from '../controllers/imagesLocal.controller.js';
-import { getFilesInvoices } from '../controllers/invoicesGdExpress.controller.js';
-import { getPatientDates } from '../controllers/getPatientDatesRx.controller.js';
-import { getFilesFlujoDigital, uploadFileDriveSP } from '../controllers/flujoDigitalSharepoint.controller.js';
-
 import rateLimit from 'express-rate-limit';
-
+//Rayos
+import { uploadFilesRayos } from '../controllers/Rayos/uploadFileSharepoint.controller.js';
+import { deleteFilesRayos } from '../controllers/Rayos/deleteFileSharepoint.controller.js';
+import { getFilesRayos } from '../controllers/Rayos/getFileSharepoint.controller.js';
+import { getImagesLocalServers } from '../controllers/Rayos/getImagesLocalServers.controller.js';
+import { getPatientDates } from '../controllers/Rayos/getPatientCareDatesLocal.controller.js';
+//GD Express 
+import { getFilesInvoicesGd } from '../controllers/GdExpress/getFilesInvoices.controller.js';
+//Flujo Digital 
+import {  uploadFilesFlujoDigital } from '../controllers/FlujoDigital/uploadFileSharepoint.controller.js';
+import { getFilesFlujoDigital } from '../controllers/FlujoDigital/getFileSharePoint.controller.js';
+import { deleteFilesFlujoDigital } from '../controllers/FlujoDigital/deleteFileSharepoint.controller.js';
 
 
 const router = express.Router();
@@ -17,18 +22,21 @@ const limiter = rateLimit({
 });
 
 //Rayos
-router.post('/uploadFile',uploadFileSharePoint);
-router.delete('/deleteFile',deleteFileSharePoint);
-router.get('/getFiles',getFilesSharePoint);
-router.get('/getImageServer',getImagesLocal)
-router.get('/v1/getPatientDates',getPatientDates)
+router.post('/v2/uploadFile',uploadFilesRayos);
+router.delete('/v2/deleteFile',deleteFilesRayos);
+router.get('/v2/getFiles',getFilesRayos);
+
+router.get('/v2/getImageServer',getImagesLocalServers)
+router.get('/v2/getPatientDates',getPatientDates)
 
 //GD Express 
-router.get('/v1/filesGdExpress',getFilesInvoices)
+router.get('/v2/filesGdExpress',getFilesInvoicesGd)
 
 //Flujo Digital
-router.post('/v1/uploadFlujo', uploadFileDriveSP)
-router.get('/v1/getFlujo', getFilesFlujoDigital)
+router.post('/v2/uploadFlujo', uploadFilesFlujoDigital)
+router.get('/v2/getFlujo', getFilesFlujoDigital)
+router.delete('/v2/deleteFlujo',deleteFilesFlujoDigital);
+
 
 
 
