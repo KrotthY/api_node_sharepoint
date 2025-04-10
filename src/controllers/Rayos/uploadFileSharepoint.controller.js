@@ -4,9 +4,6 @@ import { getAccessToken } from "../../utils/Sharepoint/getCredencials.auth.js";
 import { folderExistsUser } from "../../utils/Sharepoint/validateItem.js";
 
 
-const drivesIdRayos = "b!CzGfDnIio0SyF0mY2qNRneYCk1s-jilIkDxmR_5bBcFMwrj_TRaMRJuU_BqjtdcJ"
-
-
 export const uploadFilesRayos = async (req, res) => {
   try {
       const { base64, fileName,folderName,mimeType } = req.body;
