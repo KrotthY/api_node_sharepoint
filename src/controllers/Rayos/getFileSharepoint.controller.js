@@ -2,7 +2,6 @@ import { getFilesToDriveRx } from "../../utils/Rayos/getFile.auth.js";
 import { getAccessToken } from "../../utils/Sharepoint/getCredencials.auth.js";
 
 
-const drivesIdRayos = "b!CzGfDnIio0SyF0mY2qNRneYCk1s-jilIkDxmR_5bBcFMwrj_TRaMRJuU_BqjtdcJ"
 
 export const getFilesRayos = async (req, res)=>{
   try {
