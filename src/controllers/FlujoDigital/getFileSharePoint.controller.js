@@ -2,7 +2,7 @@ import { getFilesToDrive } from "../../utils/FlujoDigital/getFile.auth.js";
 import { getAccessToken } from "../../utils/Sharepoint/getCredencials.auth.js";
 import { getFolderId, getSubFolderId } from "../../utils/Sharepoint/getIdItems.auth.js";
 
-const  driveId = "b!CzGfDnIio0SyF0mY2qNRneYCk1s-jilIkDxmR_5bBcEqP4tFQ-b0Q55PPh2jhtHN";
+const  driveIdFlujo = process.env.FLUJO_ID;
 
 export const getFilesFlujoDigital = async (req, res)=>{
   try {
