@@ -3,7 +3,7 @@ import { createFolderUser, createsubFolderUser } from "../../utils/Sharepoint/cr
 import { getAccessToken } from "../../utils/Sharepoint/getCredencials.auth.js";
 import { folderExistsUser, subFolderExistsUser } from "../../utils/Sharepoint/validateItem.js";
 
-const  driveId = "b!CzGfDnIio0SyF0mY2qNRneYCk1s-jilIkDxmR_5bBcEqP4tFQ-b0Q55PPh2jhtHN";
+const  driveIdFlujo = process.env.FLUJO_ID;
 
 export const uploadFilesFlujoDigital = async (req, res) => {
   try {
